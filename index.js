@@ -32,7 +32,7 @@ let isNumber = function(n) {
 let isText = function(a) {
     return (!isNaN(a));
 }
-
+ 
 // проверка на введенные данные в месячный доход и блокировка кнопки пока поле пустое или не соответствует
 let disabled = function() {
     
@@ -95,7 +95,12 @@ let appData = {
     addExpensesBlock: function() {
         
         let cloneExpensesItem = expensesItems[0].cloneNode(true);
+        let clonInput = cloneExpensesItem.querySelectorAll('input');
+        clonInput[0].value = '';
+        clonInput[1].value = ''; // очищаем поле добавленного элемента
+
         expensesItems[0].parentNode.insertBefore(cloneExpensesItem, expensesPlus);
+        
         expensesItems = document.querySelectorAll('.expenses-items');
         if(expensesItems.length === 3) {
             expensesPlus.style.display = 'none';
@@ -129,6 +134,10 @@ let appData = {
     addIncomeBlock: function() {
         
         let cloneIncomeItem = incomeItem[0].cloneNode(true);
+        let clonInputIncome = cloneIncomeItem.querySelectorAll('input');
+        clonInputIncome[0].value = '';
+        clonInputIncome[1].value = ''; // очищаем поле добавленного элемента
+
         incomeItem[0].parentNode.insertBefore(cloneIncomeItem, incomePlus);
         incomeItem = document.querySelectorAll('.income-items');
         if(incomeItem.length === 3) {
@@ -227,4 +236,73 @@ periodAmount.textContent = periodSelect.value;
 periodSelect.addEventListener('input', addPeriodChange)
 
 
+// проверка на русский алфавит и символы 
+function Init () {
+    let placeholder = document.querySelectorAll('[placeholder="Наименование"]');
+    placeholder.forEach(function(item, i){
+    placeholder[i].addEventListener( 'keypress', checkName, false );
+})
+};
 
+function checkName(evt) {
+    var charCode = evt.charCode;
+    if (charCode != 0) {
+
+        let chek =  false;
+        if(charCode < 1040)  {
+            if (charCode > 31 && charCode <= 34 ) {
+                    chek = true;
+            } else if(charCode >= 39 && charCode <= 41) {
+                chek = true;
+            }else if(charCode >= 44 && charCode <= 46) {
+                chek = true;
+            }else if(charCode >= 58 && charCode <= 59) {
+                chek = true;
+            }
+
+        } else {
+            if (charCode >= 1040 && charCode <= 1103) {
+                chek = true;
+            }
+        }
+
+        if (!chek) {
+
+            evt.preventDefault();
+            alert(
+            "Пожалуйста, используйте только буквы русского алфавита или знаки препинания"
+            + "\n" + "charCode: " + charCode + "\n"
+                );
+            }
+    }
+};
+Init();
+
+//проверка на цифры полей суммы
+function Init2 () {
+    let placeholderSum = document.querySelectorAll('[placeholder="Сумма"]');
+    placeholderSum.forEach(function(item, i){
+        placeholderSum[i].addEventListener( 'keypress', checkName2, false );
+})
+};
+
+
+function checkName2(evt) {
+    var charCode = evt.charCode;
+    if (charCode != 0) {
+        let chek =  false;
+
+        if(charCode >= 48 && charCode <= 57 )  {
+                chek = true;
+            };
+
+        if (!chek) {
+
+            evt.preventDefault();
+            alert(
+            "Пожалуйста, используйте только цифры"
+                );
+            }
+    }
+};
+Init2();
