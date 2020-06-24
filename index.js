@@ -44,8 +44,11 @@ let disabled = function() {
         start.disabled = false;
     } else {start.disabled = true;}
 };
+
 start.disabled = true;
 salaryAmount.addEventListener('input', disabled); // конец проверки
+
+
 // подключение ООП 
 
 const AppData = function () {
@@ -95,7 +98,7 @@ console.log(this);
  };
 
  AppData.prototype.showResult = function(){
-    let _this = this;
+    
     budgetMonthValue.value = this.budgetMonth;
     budgetDayValue.value = this.budgetDay;
     expensesMonthValue.value = this.expenseMonth;
@@ -104,7 +107,7 @@ console.log(this);
     targetMonthValue.value = Math.ceil(this.getTargetMonth());
     incomePeriodValue.value = this.calcPeriod();
     // изменение периода влечет за собой моментальный перерасчет (начинает работать после нажатия кнопки рассчитать)
-    appData.getStatusIncome();
+    this.getStatusIncome();
 };
 
 AppData.prototype.changeRange = function(){
@@ -123,11 +126,11 @@ AppData.prototype.addExpensesBlock = function() {
     expensesItems[0].parentNode.insertBefore(cloneExpensesItem, expensesPlus);
     
     expensesItems = document.querySelectorAll('.expenses-items');
+    
     if(expensesItems.length === 3) {
         expensesPlus.style.display = 'none';
     }
 };
-
 
 AppData.prototype.getExpenses = function () {
     let _this = this;
@@ -142,7 +145,6 @@ AppData.prototype.getExpenses = function () {
 
     });
 };
-
 
 AppData.prototype.getAddExpenses = function() {
     let _this = this;
@@ -276,6 +278,78 @@ AppData.prototype.calcPeriod = function() {
     
  };
 
+ AppData.prototype.cheking = function() {
+     let _this = this;
+    function Init () {
+        let placeholder = document.querySelectorAll('[placeholder="Наименование"]');
+        placeholder.forEach(function(item, i){
+        placeholder[i].addEventListener( 'keypress', checkName, false );
+    })
+    };
+    
+    function checkName(evt) {
+        var charCode = evt.charCode;
+        if (charCode != 0) {
+    
+            let chek =  false;
+            if(charCode < 1040)  {
+                if (charCode > 31 && charCode <= 34 ) {
+                        chek = true;
+                } else if(charCode >= 39 && charCode <= 41) {
+                    chek = true;
+                }else if(charCode >= 44 && charCode <= 46) {
+                    chek = true;
+                }else if(charCode >= 58 && charCode <= 59) {
+                    chek = true;
+                }
+    
+            } else {
+                if (charCode >= 1040 && charCode <= 1103) {
+                    chek = true;
+                }
+            }
+    
+            if (!chek) {
+    
+                evt.preventDefault();
+                alert(
+                "Пожалуйста, используйте только буквы русского алфавита или знаки препинания"
+                + "\n" + "charCode: " + charCode + "\n"
+                    );
+                }
+        }
+    };
+    Init();
+    
+    //проверка на цифры полей суммы
+    function Init2 () {
+        let placeholderSum = document.querySelectorAll('[placeholder="Сумма"]');
+        placeholderSum.forEach(function(item, i){
+            placeholderSum[i].addEventListener( 'keypress', checkName2, false );
+    })
+    };
+    
+    
+    function checkName2(evt) {
+        var charCode = evt.charCode;
+        if (charCode != 0) {
+            let chek =  false;
+    
+            if(charCode >= 48 && charCode <= 57 )  {
+                    chek = true;
+                };
+    
+            if (!chek) {
+    
+                evt.preventDefault();
+                alert(
+                "Пожалуйста, используйте только цифры"
+                    );
+                }
+        }
+    };
+    Init2();
+ };
 
 AppData.prototype.reset = function() {
        
@@ -328,9 +402,6 @@ periodAmount.textContent = 1;
 
 
 
-
-
-
 const appData = new AppData();
 
 appData.start = appData.start.bind(appData);
@@ -343,105 +414,3 @@ appData.eventListeners();
 console.log(appData);
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-// start.addEventListener('click', appData.start);
-// cancel.addEventListener('click', appData.reset);
-// periodSelect.addEventListener('input', appData.changeRange);
-
-// appData.getStatusIncome();
-
-// expensesPlus.addEventListener('click', appData.addExpensesBlock);
-// incomePlus.addEventListener('click', appData.addIncomeBlock);
-
-// // изменение значения под шкалой при передвижении бегунка
-// let addPeriodChange = function () {
-
-// periodAmount.textContent = periodSelect.value;
-// };
-// periodSelect.addEventListener('input', addPeriodChange)
-
-
-// проверка на русский алфавит и символы 
-function Init () {
-    let placeholder = document.querySelectorAll('[placeholder="Наименование"]');
-    placeholder.forEach(function(item, i){
-    placeholder[i].addEventListener( 'keypress', checkName, false );
-})
-};
-
-function checkName(evt) {
-    var charCode = evt.charCode;
-    if (charCode != 0) {
-
-        let chek =  false;
-        if(charCode < 1040)  {
-            if (charCode > 31 && charCode <= 34 ) {
-                    chek = true;
-            } else if(charCode >= 39 && charCode <= 41) {
-                chek = true;
-            }else if(charCode >= 44 && charCode <= 46) {
-                chek = true;
-            }else if(charCode >= 58 && charCode <= 59) {
-                chek = true;
-            }
-
-        } else {
-            if (charCode >= 1040 && charCode <= 1103) {
-                chek = true;
-            }
-        }
-
-        if (!chek) {
-
-            evt.preventDefault();
-            alert(
-            "Пожалуйста, используйте только буквы русского алфавита или знаки препинания"
-            + "\n" + "charCode: " + charCode + "\n"
-                );
-            }
-    }
-};
-Init();
-
-//проверка на цифры полей суммы
-function Init2 () {
-    let placeholderSum = document.querySelectorAll('[placeholder="Сумма"]');
-    placeholderSum.forEach(function(item, i){
-        placeholderSum[i].addEventListener( 'keypress', checkName2, false );
-})
-};
-
-
-function checkName2(evt) {
-    var charCode = evt.charCode;
-    if (charCode != 0) {
-        let chek =  false;
-
-        if(charCode >= 48 && charCode <= 57 )  {
-                chek = true;
-            };
-
-        if (!chek) {
-
-            evt.preventDefault();
-            alert(
-            "Пожалуйста, используйте только цифры"
-                );
-            }
-    }
-};
-Init2();
