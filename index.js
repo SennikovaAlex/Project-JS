@@ -295,16 +295,20 @@ class AppData {
         periodSelect.addEventListener('input', this.changeRange);
         
         expensesPlus.addEventListener('click', this.addExpensesBlock);
+        expensesPlus.addEventListener('click', this.checkInput);
         incomePlus.addEventListener('click', this.addIncomeBlock);
+        incomePlus.addEventListener('click', this.checkInput);
         
         // изменение значения под шкалой при передвижении бегунка
         const addPeriodChange = () => {
         
-        periodAmount.textContent = periodSelect.value;
+            periodAmount.textContent = periodSelect.value;
         };
         periodSelect.addEventListener('input', addPeriodChange);  
         depositCheck.addEventListener('change', this.depositHandler.bind(this));
         this.checkInput();
+        
+
      }
 
      checkInput() {
@@ -350,7 +354,8 @@ class AppData {
         expensesPlus.disabled = false;
         const input = document.querySelectorAll('input');
         
-        
+        incomePlus.style.display = 'inline';
+        expensesPlus.style.display = 'inline';
 
         input.forEach((item) => {
             item.value = '';
