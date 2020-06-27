@@ -356,12 +356,14 @@ class AppData {
         
         incomePlus.style.display = 'inline';
         expensesPlus.style.display = 'inline';
+        depositCheck.checked = false;
+        this.depositHandler();
 
         input.forEach((item) => {
             item.value = '';
             cancel.style.display = 'none';
             start.style.display = 'inline'; 
-    });
+        });
         
     
         const inputDel = document.querySelectorAll('[type="text"]');
@@ -385,8 +387,8 @@ class AppData {
             };
         });
     
-    periodSelect.value = '1';
-    periodAmount.textContent = 1;
+        periodSelect.value = '1';
+        periodAmount.textContent = 1;
     }
 };
 
