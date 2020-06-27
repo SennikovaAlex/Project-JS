@@ -17,31 +17,20 @@ const salaryAmount = document.querySelector('.salary-amount');
 const incomeTitle = document.querySelector('.income-title');
 const incomeAmount = document.querySelector('.income-amount');
 const expensesTitle = document.querySelector('.expenses-title');
-let expensesItems = document.querySelectorAll('.expenses-items');
 const additionalExpensesItem = document.querySelector('.additional_expenses-item');
-const depositAmount = document.querySelector('.deposit-amount');
-const depositPercent = document.querySelector('.deposit-percent');
 const targetAmount = document.querySelector('.target-amount');
 const periodSelect = document.querySelector('.period-select');
-let incomeItem = document.querySelectorAll('.income-items');
 const cancel = document.getElementById('cancel');
- 
 const input = document.querySelectorAll('input');
 const periodAmount = document.querySelector('.period-amount');
+const depositBank = document.querySelector('.deposit-bank'); 
+const depositAmount = document.querySelector('.deposit-amount');
+const depositPercent = document.querySelector('.deposit-percent');
 
+let expensesItems = document.querySelectorAll('.expenses-items');
+let incomeItem = document.querySelectorAll('.income-items');
 const isNumber = (n) => !isNaN(parseFloat(n)) && isFinite(n);
-
-const isText = (a) => (!isNaN(a));
- 
-// проверка на введенные данные в месячный доход и блокировка кнопки пока поле пустое или не соответствует
-let disabled = () => {   
-    if (salaryAmount.value.trim() !== '' && isNumber(salaryAmount.value.trim())) {
-        start.disabled = false;
-    } else {start.disabled = true;}
-};
-
-start.disabled = true;
-salaryAmount.addEventListener('input', disabled); 
+  
 
 // подключение ООП 
 
@@ -52,7 +41,7 @@ class AppData {
         this.expenses = {};
         this.addExpenses = [];
         this.deposit = false;
-        this.percentDeposot = 0;
+        this.percentDeposit = 0;
         this.moneyDeposit = 0;
         this.budget = 0;
         this.budgetDay = 0;
@@ -62,13 +51,18 @@ class AppData {
     }
 
     start() {
-        console.log(this);
         
+
+        // const isText = (a) => (!isNaN(a));
+
+        if (salaryAmount.value.trim() !== '' && isNumber(salaryAmount.value.trim())) {
             this.budget  = salaryAmount.value;
             this.getExpenses();
              
              this.getExpensesMonth();
              this.getIncome();
+             this.getInfoDeposit();
+             
            
              this.getBudget();
              this.getAddExpenses();
@@ -78,7 +72,7 @@ class AppData {
              
              this.showResult();
              
-             this.getInfoDeposit();
+             
         
              const inputDel = document.querySelectorAll('[type="text"]');
              inputDel.forEach((item) => {
@@ -89,9 +83,12 @@ class AppData {
             cancel.style.display = 'inline';
             incomePlus.disabled = true;
             expensesPlus.disabled = true; 
-         }
-
-         showResult(){
+        } else {
+            alert('заполните поле месячный доход');
+        };
+    }
+     
+    showResult(){
     
             budgetMonthValue.value = this.budgetMonth;
             budgetDayValue.value = this.budgetDay;
@@ -102,14 +99,14 @@ class AppData {
             incomePeriodValue.value = this.calcPeriod();
             // изменение периода влечет за собой моментальный перерасчет (начинает работать после нажатия кнопки рассчитать)
             this.getStatusIncome();
-        }
+    }
 
-        changeRange() {
+    changeRange() {
     
             incomePeriodValue.value = this.calcPeriod();
-        }
+    }
         
-        addExpensesBlock() {
+    addExpensesBlock() {
             
             
         const cloneExpensesItem = expensesItems[0].cloneNode(true);
@@ -223,27 +220,75 @@ class AppData {
     
     getBudget = function() {
             
-            
-        this.budgetMonth = (+this.budget  + +this.incomeMonth - this.getExpensesMonth());
+        const monthDeposit = Math.ceil(this.moneyDeposit * (this.percentDeposit / 100));    
+        this.budgetMonth = (+this.budget  + +this.incomeMonth - this.getExpensesMonth() + monthDeposit);
         this.budgetDay = Math.floor(this.getExpensesMonth()/30);   
     }
 
     getInfoDeposit() {
-        
-        if (this.deposit) {
-            do {this.percentDeposot = prompt('Какой годовой процент?', '10'); } while (!isNumber(this.percentDeposot));
-            do {this.moneyDeposit = prompt('какая сумма заложена?', '10000'); } while (!isNumber(this.moneyDeposit));
-            
+        if(this.deposit) {
+            this.percentDeposit = depositPercent.value;
+            this.moneyDeposit = depositAmount.value;
         }
+        
     }
     
     calcPeriod() {
         
         return this.budgetMonth * periodSelect.value;
      }
+
+     changePersent() {
+         const valueSelect = this.value;
+        if (valueSelect === 'other') {
+           depositPercent.style.display = 'inline-block'; 
+
+           depositPercent.addEventListener('input', () => {
+               if(depositPercent.value < 0 || depositPercent.value > 100 || !isNumber(depositPercent.value.trim())) {
+            
+            alert('Введите число от 0 до 100');
+            depositPercent.value = '';
+
+        } else {
+            depositPercent.value = depositPercent.value;
+            start.disabled = false;
+            
+        };
+        }
+        );
+           
+        } else {
+            depositPercent.value = valueSelect;
+            depositPercent.style.display = 'none';
+        }
+        depositPercent.value = depositPercent.value;
+     }
+
+    depositHandler() {
+        if(depositCheck.checked) {
+            depositBank.style.display = 'inline-block';
+            depositAmount.style.display = 'inline-block';
+            this.deposit = true;
+            depositBank.addEventListener('change', this.changePersent);
+        } else {
+            depositBank.style.display = 'none';
+            depositAmount.style.display = 'none';
+            
+            depositBank.value = '';
+            depositAmount.value = '';
+            depositPercent.value = '';
+            this.deposit = false;
+            depositBank.removeEventListener('change', this.changePersent);
+        }
+    }
     
     
     eventListeners() {
+        this.start = this.start.bind(this);
+        this.changeRange = this.changeRange.bind(this);
+        this.reset = this.reset.bind(this); 
+        
+        salaryAmount.addEventListener('input', this.disabled);
       
         start.addEventListener('click', this.start);
         cancel.addEventListener('click', this.reset);
@@ -258,7 +303,34 @@ class AppData {
         periodAmount.textContent = periodSelect.value;
         };
         periodSelect.addEventListener('input', addPeriodChange);  
+        depositCheck.addEventListener('change', this.depositHandler.bind(this));
+        this.checkInput();
      }
+
+     checkInput() {
+         let allInputs = document.querySelectorAll('input');
+         allInputs.forEach((item) => {
+            if(item.placeholder == 'Наименование' || item.placeholder == 'Название') {
+                item.addEventListener('keypress', (evt) => {
+                    if((evt.charCode > 1039 && evt.charCode < 1104) ||
+                        evt.charCode == 32 || evt.charCode == 44 || evt.charCode == 46 || evt.charCode == 45 || evt.charCode == 59 || evt.charCode == 58 ) {
+                        
+                    } else {
+                        evt.preventDefault();
+                    };
+                });
+            } else if(item.placeholder == 'Сумма') {
+                item.addEventListener('keypress', (evt) => { 
+                    if((evt.charCode > 47 && evt.charCode < 58) || evt.charCode == 46) {
+                        
+                    } else {
+                        evt.preventDefault();
+                    };
+                });
+                 
+            };
+        });
+    }
 
      reset() {
        
@@ -277,12 +349,15 @@ class AppData {
         incomePlus.disabled = false;
         expensesPlus.disabled = false;
         const input = document.querySelectorAll('input');
-    
+        
+        
+
         input.forEach((item) => {
             item.value = '';
             cancel.style.display = 'none';
             start.style.display = 'inline'; 
     });
+        
     
         const inputDel = document.querySelectorAll('[type="text"]');
         inputDel.forEach((item) => {
@@ -311,85 +386,13 @@ class AppData {
 };
 
 
-
-
 const appData = new AppData();
-
-appData.start = appData.start.bind(appData);
-appData.changeRange = appData.changeRange.bind(appData);
-appData.reset = appData.reset.bind(appData); 
-
 appData.eventListeners();
 
-console.log(appData);
-
-function Init () {
-    const placeholder = document.querySelectorAll('[placeholder="Наименование"]');
-    placeholder.forEach(function(item, i){
-    placeholder[i].addEventListener( 'keypress', checkName, false );
-})
-};
-
-function checkName(evt) {
-    const charCode = evt.charCode;
-    if (charCode != 0) {
-
-        let chek =  false;
-        if(charCode < 1040)  {
-            if (charCode > 31 && charCode <= 34 ) {
-                    chek = true;
-            } else if(charCode >= 39 && charCode <= 41) {
-                chek = true;
-            }else if(charCode >= 44 && charCode <= 46) {
-                chek = true;
-            }else if(charCode >= 58 && charCode <= 59) {
-                chek = true;
-            }
-
-        } else {
-            if (charCode >= 1040 && charCode <= 1103) {
-                chek = true;
-            }
-        }
-
-        if (!chek) {
-
-            evt.preventDefault();
-            alert(
-            "Пожалуйста, используйте только буквы русского алфавита или знаки препинания"
-                );
-            }
-    }
-};
-Init();
-
-//проверка на цифры полей суммы
-function Init2 () {
-    const placeholderSum = document.querySelectorAll('[placeholder="Сумма"]');
-    placeholderSum.forEach(function(item, i){
-        placeholderSum[i].addEventListener( 'keypress', checkName2, false );
-})
-};
 
 
-function checkName2(evt) {
-    const charCode = evt.charCode;
-    if (charCode != 0) {
-        let chek =  false;
 
-        if(charCode >= 48 && charCode <= 57 )  {
-                chek = true;
-            };
 
-        if (!chek) {
 
-            evt.preventDefault();
-            alert(
-            "Пожалуйста, используйте только цифры"
-                );
-            }
-    }
-};
-Init2();
 
 
